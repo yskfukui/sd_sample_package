@@ -1,0 +1,92 @@
+<?xml version="1.0" ?>
+<robot name="camera" xmlns:xacro="http://ros.org/wiki/xacro">
+
+<xacro:property name="PI" value="3.14159265358979"/>
+
+<!-- Let's try to model camera! -->
+<!-- reference: https://qiita.com/srs/items/7d78f9ad21a0e61f5bff -->
+<!-- gazebo official: http://gazebosim.org/tutorials?tut=ros_gzplugins -->
+
+    <!-- <link name="camera">
+        <visual>
+            <geometry>
+                <box size="0.01 0.005 0.005"/>
+            </geometry>
+        </visual>
+        <inertial>
+            <mass value="0.0001"/>
+            <inertia ixx="0.0001" ixy="0" ixz="0"
+                     iyx="0" iyy="0.0001" iyz="0"
+                     izx="0" izy="0" izz="0.001" />
+        </inertial>
+    </link>
+
+    <joint name="${name}_sensor_joint" type="fixed">
+        <parent link=""/>
+        <child link=""/>
+        <origin xyz="" rpy=""/>
+    </joint>
+
+    <gazebo reference="${name}_sensor">
+
+    </gazebo> -->
+<xacro:macro name="gazebo_camera" params="name parent xyz direction">
+    <link name="camera">
+        <visual>
+            <geometry>
+                <box size="0.01 0.005 0.005"/>
+            </geometry>
+        </visual>
+        <inertial>
+            <mass value="0.0001"/>
+            <inertia ixx="0.0001" ixy="0" ixz="0"
+                     iyx="0" iyy="0.0001" iyz="0"
+                     izx="0" izy="0" izz="0.0001" />
+        </inertial>
+    </link>
+    <joint name="camera_joint" type="fixed">
+        <parent link="${parent}"/>
+        <child link="camera"/>
+        <origin xyz="${xyz}" rpy="0 0 ${PI/2 + direction}"/>
+    </joint>
+    <gazebo reference="camera">
+     <sensor type="camera" name="camera">
+      <update_rate>30.0</update_rate>
+      <camera name="head">
+        <horizontal_fov>1.3962634</horizontal_fov>
+        <image>
+          <width>800</width>
+          <height>800</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.02</near>
+          <far>300</far>
+        </clip>
+        <noise>
+          <type>gaussian</type>
+          <!-- Noise is sampled independently per pixel on each frame.
+               That pixel's noise value is added to each of its color
+               channels, which at that point lie in the range [0,1]. -->
+          <mean>0.0</mean>
+          <stddev>0.007</stddev>
+        </noise>
+      </camera>
+      <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+        <alwaysOn>true</alwaysOn>
+        <updateRate>0.0</updateRate>
+        <cameraName>rrbot/camera</cameraName>
+        <imageTopicName>image_raw</imageTopicName>
+        <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+        <frameName>camera</frameName>
+        <hackBaseline>0.07</hackBaseline>
+        <distortionK1>0.0</distortionK1>
+        <distortionK2>0.0</distortionK2>
+        <distortionK3>0.0</distortionK3>
+        <distortionT1>0.0</distortionT1>
+        <distortionT2>0.0</distortionT2>
+      </plugin>
+     </sensor>
+    </gazebo>
+</xacro:macro>
+</robot>
